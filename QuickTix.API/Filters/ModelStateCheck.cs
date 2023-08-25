@@ -1,18 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using QuickTix.API.Helpers;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using QuickTix.Core.Entities;
 
-namespace QuickTix.Service.Filters.ActionFilters
+namespace QuickTix.API.Filters
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-
     public class ModelStateCheck : Attribute, IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -25,10 +17,10 @@ namespace QuickTix.Service.Filters.ActionFilters
 
 
                 httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-                await httpContext.Response.WriteAsJsonAsync(new ResponseModel()
+                await httpContext.Response.WriteAsJsonAsync(new JsonMessage<string>()
                 {
-                    StatusCode = 500,
-                    Message = errorMessage,
+                    status = false,
+                    result = errorMessage,
                     status_code = (int)HttpStatusCode.NotImplemented,
                     error_message = "Invalid validation"
                 });
