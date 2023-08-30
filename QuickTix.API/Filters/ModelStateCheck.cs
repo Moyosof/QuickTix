@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
-using QuickTix.API.Helpers;
 using System.Net;
+using QuickTix.API.Helpers;
 
 namespace QuickTix.API.Filters
 {

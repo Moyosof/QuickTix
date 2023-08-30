@@ -2,14 +2,15 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using QuickTix.Repo.Data;
-using QuickTix.Service.Filters.ActionFilters;
-using QuickTix.Service.Interfaces;
-using QuickTix.Service.Services;
+using QuickTix.API.Data;
+using QuickTix.API.Entities;
+using QuickTix.API.Filters.ActionFilters;
+using QuickTix.API.Mappings;
+using QuickTix.API.Repositories.Interfaces;
+using QuickTix.API.Repositories.Services;
 using System.Reflection;
 using System.Text;
 
@@ -17,29 +18,45 @@ namespace QuickTix.API.Extensions
 {
     public static class ServiceExtension
     {
-        private readonly static string SpecificOrigin = "Specific_OriginCORs";
-        private readonly static string AnyOrigin = "Any_origin";
-        private readonly static string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
         public static void ConfigureRepositoryAndServices(this IServiceCollection services, IConfiguration Configuration)
         {
-            #region Configure Services
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
+
+            services.AddScoped<IUserAuth, UserAuth>();
+
+
             services.AddScoped<ValidationFilterAttribute>();
 
-            #endregion
         }
 
-        public static void ConfigureModelState(this IServiceCollection services)
-        {
-            #region ModelState
+        public static void ConfigureLoggerService(this IServiceCollection services) =>
+                  services.AddScoped<ILoggerManager, LoggerManager>();
 
-            services.Configure<ApiBehaviorOptions>(options =>
+
+        public static void ConfigureDatabaseConnection(this IServiceCollection services, IConfiguration Configuration)
+        {
+            services.AddDbContext<QuickTixDbContext>(options =>
+            {
+                options.UseMySql(connectionString: Configuration.GetConnectionString("ApplicationConnectionString"), serverVersion: ServerVersion.AutoDetect(Configuration.GetConnectionString("WebApiDatabase_Development")), mySqlOptionsAction: sqlOptions =>
+                {
+                    sqlOptions.UseNetTopologySuite();
+                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                    sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                });
+            });
+        }
+
+        public static void ConfigureMapping(this IServiceCollection services)
+        {
+            #region MAPPINGS
+            services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
+            var mapperConfig = new MapperConfiguration(map =>
             {
 
-                options.SuppressModelStateInvalidFilter = true;
+                map.AddProfile<UserMappingProfile>();
             });
+
+            services.AddSingleton(mapperConfig.CreateMapper());
 
             #endregion
         }
@@ -54,7 +71,7 @@ namespace QuickTix.API.Extensions
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.SignIn.RequireConfirmedEmail = false;
 
-            }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+            }).AddEntityFrameworkStores<QuickTixDbContext>().AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -80,256 +97,82 @@ namespace QuickTix.API.Extensions
             #endregion
         }
 
-        public static void ConfigureMapping(this IServiceCollection services)
+        
+
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
-            #region MAPPINGS
-            services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
-            var mapperConfig = new MapperConfiguration(map =>
+            services.AddAuthentication(opt =>
             {
-                //map.AddProfile<TeacherMappingProfile>();
-                //map.AddProfile<StudentMappingProfile>();
-                //map.AddProfile<UserMappingProfile>();
-            });
-
-            services.AddSingleton(mapperConfig.CreateMapper());
-
-            #endregion
-        }
-
-        public static void ConfigureControllers(this IServiceCollection services)
-        {
-            #region CONTROLLERS
-            services.AddControllers(config =>
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
             {
-                config.CacheProfiles.Add("30SecondsCaching", new CacheProfile
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    Duration = 30
-                });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["jwtConfig:validIssuer"],
+                    ValidAudience = configuration["jwtConfig:validAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtConfig:secret"]))
+                };
             });
-            #endregion
         }
 
-        public static void ConfigureResponseCaching(this IServiceCollection services) => services.AddResponseCaching();
-
-        public static void ConfigureJWT(this IServiceCollection services, IConfiguration Configuration)
+        public static void ConfigureSwagger(this IServiceCollection services)
         {
-            #region JWT
-            var TokenValidationParameters = new TokenValidationParameters
+            services.AddSwaggerGen(opt =>
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidAudience = Configuration["JwtSettings:Audience"],
-                ValidIssuer = Configuration["JwtSettings:Site"],
-                RequireExpirationTime = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSettings:Secret"])),
-                ValidateIssuerSigningKey = true,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            services.AddSingleton(TokenValidationParameters);
-
-            services.AddAuthentication(auth =>
-            {
-                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.TokenValidationParameters = TokenValidationParameters;
-            });
-            #endregion
-        }
-
-
-        public static void ConfigureSwaggerGen(this IServiceCollection services, string xmlPath = null)
-        {
-            #region SWAGGERGEN
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                opt.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "Quick Tix API",
+                    Title = "QuickTix.API",
                     Version = "v1",
-                    Description = "Quick Tix API Services.",
+                    Description = "A ticket reservation platform",
+                    TermsOfService = new Uri("https://reistry-landing.vercel.app"),
                     Contact = new OpenApiContact
                     {
-                        Name = "Quick Tix."
+                        Name = "Quick Tix Services",
+                        Email = "reistyapp@gmail.com",
+                        Url = new Uri("https://reistry-landing.vercel.app"),
                     },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Quick API LICX",
+                        Url = new Uri("https://reistry-landing.vercel.app"),
+                    }
                 });
-                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
+                //opt.OperationFilter<SwaggerHeaderFilter>(); // setting header input for api request
 
-                // XML DOCUMENTATION
-                if (string.IsNullOrWhiteSpace(xmlPath))
-                {
-                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                }
-
-                if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
-
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                //Enable Jwt Authorization in Swagger
+                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme."
+                    Description = "Enter 'Bearer' [space] and your valid token in the text input below. \r\n\r\nExample: \"Bearer eyJhnbGciOrNwi78gGhiLLiUjo9A8dXCVBk9\""
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
                     {
-                        new OpenApiSecurityScheme
+                        new OpenApiSecurityScheme()
                         {
-                            Reference = new OpenApiReference
+                            Reference = new OpenApiReference()
                             {
                                 Type = ReferenceType.SecurityScheme,
                                 Id = "Bearer"
                             }
                         },
-                        new string[] {}
+                        Array.Empty<string>()
                     }
                 });
             });
-            #endregion
         }
 
-        public static string ConfigureCorsSpecificOrigin(this IServiceCollection services, string[] origins)
-        {
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: SpecificOrigin, builder => builder.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod());
-            });
-
-            return SpecificOrigin;
-        }
-
-        public static void ConfigureCORS(this IServiceCollection services, IConfiguration Configuration)
-        {
-            #region Cors
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: AnyOrigin, builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-            });
-            #endregion
-        }
-
-        public static void ConfigureApiVersioning(this IServiceCollection services)
-        {
-            #region API VERSIONING
-            services.AddApiVersioning(options =>
-            {
-                options.AssumeDefaultVersionWhenUnspecified = true; //this will cause our api to default to verion 1.0
-
-                //Default verion 1.0
-                options.DefaultApiVersion = ApiVersion.Default; //new ApiVersion(1, 0); //ApiVersion.Default;
-
-                options.ApiVersionReader = ApiVersionReader.Combine(new MediaTypeApiVersionReader("version"),
-                                                                    new HeaderApiVersionReader("x-api-version"));
-
-                options.ReportApiVersions = true; // Will provide the different api version which is available for the client
-            });
-            #endregion
-        }
-
-        public static void ConfigureDatabaseConnection(this IServiceCollection services, IConfiguration Configuration)
-        {
-            #region DB Connection
-            try
-            {
-                if (env == "Production")
-                {
-                    services.AddDbContext<ApplicationDbContext>(options =>
-                    {
-                        options.UseMySql(connectionString: Environment.GetEnvironmentVariable("WebApiDatabase_Production"), serverVersion: ServerVersion.AutoDetect(Environment.GetEnvironmentVariable("WebApiDatabase_Production")), mySqlOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                        });
-                    });
-                }
-
-                if (env == "Staging")
-                {
-                    services.AddDbContext<ApplicationDbContext>(options =>
-                    {
-                        options.UseMySql(connectionString: Environment.GetEnvironmentVariable("WebApiDatabase_Staging"), serverVersion: ServerVersion.AutoDetect(Environment.GetEnvironmentVariable("WebApiDatabase_Staging")), mySqlOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                        });
-                    });
-                }
-
-                if (env == "Development")
-                {
-                    services.AddDbContext<ApplicationDbContext>(options =>
-                    {
-                        options.UseMySql(connectionString: Configuration.GetConnectionString("WebApiDatabase_Development"), serverVersion: ServerVersion.AutoDetect(Configuration.GetConnectionString("WebApiDatabase_Development")), mySqlOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                        });
-                    });
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-
-            //Reisty dbcontext
-            try
-            {
-                if (env == "Production")
-                {
-                    services.AddDbContext<QuickTixDbContext>(options =>
-                    {
-                        options.UseMySql(connectionString: Environment.GetEnvironmentVariable("WebApiDatabase_Production"), serverVersion: ServerVersion.AutoDetect(Environment.GetEnvironmentVariable("WebApiDatabase_Production")), mySqlOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.UseNetTopologySuite();
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                        });
-                    });
-                }
-
-                if (env == "Staging")
-                {
-                    services.AddDbContext<QuickTixDbContext>(options =>
-                    {
-                        options.UseMySql(connectionString: Environment.GetEnvironmentVariable("WebApiDatabase_Staging"), serverVersion: ServerVersion.AutoDetect(Environment.GetEnvironmentVariable("WebApiDatabase_Staging")), mySqlOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.UseNetTopologySuite();
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                        });
-                    });
-                }
-
-                if (env == "Development")
-                {
-                    services.AddDbContext<QuickTixDbContext>(options =>
-                    {
-                        options.UseMySql(connectionString: Configuration.GetConnectionString("WebApiDatabase_Development"), serverVersion: ServerVersion.AutoDetect(Configuration.GetConnectionString("WebApiDatabase_Development")), mySqlOptionsAction: sqlOptions =>
-                        {
-                            sqlOptions.UseNetTopologySuite();
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-                        });
-                    });
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-            #endregion
-        }
     }
 }

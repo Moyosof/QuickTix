@@ -1,14 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using QuickTix.Service.Interfaces;
+using QuickTix.API.Repositories.Interfaces;
 
 namespace QuickTix.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class BaseController : ControllerBase
     {
-        private IBusinessRule _businessRule;
+        protected readonly ILoggerManager _logger;
+        protected readonly IMapper _mapper;
 
+        public BaseController(ILoggerManager logger, IMapper mappeer)
+        {
+            _logger = logger;
+            _mapper = mappeer;
+        }
     }
 }

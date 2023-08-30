@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
-using QuickTix.Core.Dtos;
+using QuickTix.API.Entities.DTOs;
 
 namespace QuickTix.API.Helpers
 {
