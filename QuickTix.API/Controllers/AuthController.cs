@@ -30,5 +30,14 @@ namespace QuickTix.API.Controllers
         }
 
 
+        [HttpPost("login")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Authenticate([FromBody] UserLoginDto user)
+        {
+            return !await _userAuth.ValidateUserAsync(user)
+                ? Unauthorized() : Ok(new { Token = await _userAuth.CreateTokenAsync() });
+        }
+
+
     }
 }

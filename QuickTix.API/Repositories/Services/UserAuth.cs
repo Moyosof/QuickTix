@@ -31,9 +31,11 @@ namespace QuickTix.API.Repositories.Services
             return result;
         }
 
-        public Task<bool> ValidateUserAsync(UserLoginDto userLoginDto)
+        public async Task<bool> ValidateUserAsync(UserLoginDto loginDto)
         {
-            throw new NotImplementedException();
+            _user = await _userManager.FindByNameAsync(loginDto.UserName);
+            var result = _user != null && await _userManager.CheckPasswordAsync(_user, loginDto.Password);
+            return result;
         }
 
         public async Task<string> CreateTokenAsync()

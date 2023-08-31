@@ -1,9 +1,13 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace QuickTix.API.Helpers
 {
     public static class Util
     {
+        const int keySize = 64;
+        const int iterations = 350000;
         public static bool IsValidEmail(string email)
         {
             if (email != null)
@@ -42,6 +46,36 @@ namespace QuickTix.API.Helpers
         public static bool VerifyPassword(string password, string hashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+
+        public static bool IsOTP(string userOTP)
+        {
+            int OTPlength = userOTP.Length;
+
+            if(OTPlength != 6)
+            {
+                return false;
+            }
+            return long.TryParse(userOTP, out _);
+        }
+
+        public static string HashOTP(string userOTP)
+        {
+            HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
+            var hash = Rfc2898DeriveBytes.Pbkdf2(
+                Encoding.UTF8.GetBytes(userOTP),
+                Convert.FromBase64String("AgQGCAoMDhASFA=="),
+                iterations,
+                hashAlgorithm,
+                keySize);
+            return Convert.ToHexString(hash);
+        }
+
+        public static bool VerifyOTP(string userOTP, string hashedOTPstored)
+        {
+            HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
+            var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(userOTP, Convert.FromBase64String("AgQGCAoMDhASFA=="), iterations, hashAlgorithm, keySize);
+            return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(hashedOTPstored));
         }
     }
 }
