@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "nBxwpxO/bCPFdmEOQ5EAHvo8d5PgnXFJG2PfqYwbewuSoiXcjQA78yr4rHC/Kp6jmkHSeIg+9LPAMksF/V66aQ==",
+  "dgSpecHash": "xV/dKNpFy4yZ9cdk5gQalwvlfEY/V1b1dAoDRM/rTxQP7HwcuKk8wGUSxtck8Uo/3U2aebDPiVqfSTJU0Rl9Mw==",
   "success": true,
   "projectFilePath": "C:\\Users\\USER\\Desktop\\.NETProjects\\CQRSOnionPattern\\QuickTix\\QuickTix.API\\QuickTix.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USER\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
+    "C:\\Users\\USER\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.10\\microsoft.aspnetcore.authentication.jwtbearer.7.0.10.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\7.0.10\\microsoft.aspnetcore.cryptography.internal.7.0.10.nupkg.sha512",

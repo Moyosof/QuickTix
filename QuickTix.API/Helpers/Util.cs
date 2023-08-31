@@ -33,6 +33,15 @@ namespace QuickTix.API.Helpers
             return result.ToUpper();
         }
 
+        public static string HashPassword(string password, string salt)
+        {
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+            return hashedPassword;
+        }
 
+        public static bool VerifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
     }
 }
