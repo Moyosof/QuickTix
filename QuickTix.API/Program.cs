@@ -9,13 +9,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//.CreateDefaultBuilder(args)
-//.ConfigureLogging(logging =>
-//{
-//    logging.AddConsole();
-//    logging.AddDebug();
-//});
-
 // Add services to the container.
 builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryAndServices(builder.Configuration);
@@ -31,54 +24,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-
-//builder.Services.AddDbContext<ExpenseTrackerDbContext>(options => options.UseSqlServer(
-//    builder.Configuration.GetConnectionString("DefaultConnection")));
-
-
-
-//builder.Services.ManageDataAsync(builder.Services);
-
-//var dbContextSvc = .GetRequiredService<ExpenseTrackerDbContext>();
-
-
-
-
-
-
-
-
-//builder.Services.AddScoped<IExpense, ExpenseRepository>();
-//builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
-
-
-//var mapperConfig = new MapperConfiguration(map =>
-//{
-//    map.AddProfile<ExpenseMapping>();
-//    map.AddProfile<UserMapping>();
-
-//});
-
-//builder.Services.AddSingleton(mapperConfig.CreateMapper());
-
-//var config = new ConfigurationBuilder()
-//    .SetBasePath(AppContext.BaseDirectory)
-//    .AddJsonFile("appsettings.json")
-//    .Build();
-
-//var connectionString = GetConnectionSetup(config);
-
 var app = builder.Build();
-
-//var scope = app.Services.CreateScope();
-//await ServiceExtension.ManageDataAsync(scope.ServiceProvider);
-
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-
-//}
 
 app.UseSwagger();
 app.UseSwaggerUI();
