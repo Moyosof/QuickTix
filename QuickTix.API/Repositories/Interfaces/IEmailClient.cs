@@ -2,7 +2,7 @@
 
 namespace QuickTix.API.Repositories.Interfaces
 {
-    public interface IMailService
+    public interface IEmailClient
     {
         Task SendEmailAsync(MailRequestService mailRequest);
     }
