@@ -8,7 +8,7 @@ using Microsoft.OpenApi.Models;
 using QuickTix.API.Data;
 using QuickTix.API.Entities;
 using QuickTix.API.Filters.ActionFilters;
-using QuickTix.API.Mappings;
+using QuickTix.API.Helpers;
 using QuickTix.API.Repositories.Interfaces;
 using QuickTix.API.Repositories.Services;
 using System.Reflection;
@@ -37,7 +37,7 @@ namespace QuickTix.API.Extensions
         {
             services.AddDbContext<QuickTixDbContext>(options =>
             {
-                options.UseMySql(connectionString: Configuration.GetConnectionString("ApplicationConnectionString"), serverVersion: ServerVersion.AutoDetect(Configuration.GetConnectionString("WebApiDatabase_Development")), mySqlOptionsAction: sqlOptions =>
+                options.UseMySql(connectionString: Configuration.GetConnectionString("ApplicationConnectionString"), serverVersion: ServerVersion.AutoDetect(Configuration.GetConnectionString("ApplicationConnectionString")), mySqlOptionsAction: sqlOptions =>
                 {
                     sqlOptions.UseNetTopologySuite();
                     sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
@@ -53,7 +53,7 @@ namespace QuickTix.API.Extensions
             var mapperConfig = new MapperConfiguration(map =>
             {
 
-                map.AddProfile<UserMappingProfile>();
+                map.AddProfile<MappingProfiles>();
             });
 
             services.AddSingleton(mapperConfig.CreateMapper());
