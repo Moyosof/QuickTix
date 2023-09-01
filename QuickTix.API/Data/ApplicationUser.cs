@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace QuickTix.API.Entities
+namespace QuickTix.API.Data
 {
     public class ApplicationUser : IdentityUser
     {
