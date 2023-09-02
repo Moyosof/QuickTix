@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using QuickTix.API.Entities;
+using QuickTix.API.Data;
 using QuickTix.API.Entities.DTOs;
 using QuickTix.API.Repositories.Interfaces;
 using System.IdentityModel.Tokens.Jwt;

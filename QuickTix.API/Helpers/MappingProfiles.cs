@@ -1,6 +1,6 @@
 ﻿using QuickTix.API.Entities.DTOs;
-using QuickTix.API.Entities;
 using AutoMapper;
+using QuickTix.API.Data;
 
 namespace QuickTix.API.Helpers
 {
@@ -8,7 +8,7 @@ namespace QuickTix.API.Helpers
     {
         public MappingProfiles()
         {
-            // Provide Mapping Configurations Her
+            // All Mapping Configuration Here
             CreateMap<UserRegistrationDto, ApplicationUser>();
         }
     }
