@@ -5,7 +5,7 @@ namespace QuickTix.API.Repositories.Interfaces
 {
     public interface IUserAuth
     {
-        Task<IdentityResult> RegisterUserAsync(UserRegistrationDto userRegistration);
+        Task<string> RegisterUserAsync(UserRegistrationDto userRegistration);
         Task<bool> ValidateUserAsync(UserLoginDto loginDto);
         Task<string> CreateTokenAsync();
 

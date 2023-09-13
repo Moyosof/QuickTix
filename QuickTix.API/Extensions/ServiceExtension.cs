@@ -23,11 +23,13 @@ namespace QuickTix.API.Extensions
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddScoped<IUserAuth, UserAuth>();
+            services.AddTransient<IEmailClient, EmailClientService>();
 
 
             services.AddScoped<ValidationFilterAttribute>();
 
         }
+
 
         public static void ConfigureLoggerService(this IServiceCollection services) =>
                   services.AddScoped<ILoggerManager, LoggerManager>();
@@ -66,7 +68,7 @@ namespace QuickTix.API.Extensions
             #region IDENTITY
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedAccount = true;
                 options.User.RequireUniqueEmail = true;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.SignIn.RequireConfirmedEmail = false;

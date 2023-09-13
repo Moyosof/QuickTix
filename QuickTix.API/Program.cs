@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QuickTix.API.Data;
 using QuickTix.API.Entities;
+using QuickTix.API.Entities.Services;
 using QuickTix.API.Extensions;
 using System.Text;
 
@@ -14,6 +15,8 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryAndServices(builder.Configuration);
 
 builder.Services.ConfigureMapping();
+
+builder.Services.Configure<MailClientService>(builder.Configuration.GetSection("SmtpSettings"));
 
 builder.Services.ConfigureDatabaseConnection(builder.Configuration);
 builder.Services.ConfigureIdentity();

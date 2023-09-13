@@ -24,11 +24,11 @@ namespace QuickTix.API.Repositories.Services
             _configuration = configuration;
         }
 
-        public async Task<IdentityResult> RegisterUserAsync(UserRegistrationDto userRegistration)
+        public async Task<string> RegisterUserAsync(UserRegistrationDto userRegistration)
         {
             var user = _mapper.Map<ApplicationUser>(userRegistration);
             var result = await _userManager.CreateAsync(user, userRegistration.Password);
-            return result;
+            return "Confirm your email";
         }
 
         public async Task<bool> ValidateUserAsync(UserLoginDto loginDto)
