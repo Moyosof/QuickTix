@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using QuickTix.API.Repositories.Interfaces;
+using HouseMate.API.Repositories.Interfaces;
 
-namespace QuickTix.API.Controllers
+namespace HouseMate.API.Controllers
 {
     [ApiController]
     public class BaseController : ControllerBase

@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using QuickTix.API.Data;
-using QuickTix.API.Entities.DTOs;
-using QuickTix.API.Repositories.Interfaces;
+using HouseMate.API.Data;
+using HouseMate.API.Entities.DTOs;
+using HouseMate.API.Repositories.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using HouseMate.API.Entities.Enums;
 
-namespace QuickTix.API.Repositories.Services
+namespace HouseMate.API.Repositories.Services
 {
     public class UserAuth : IUserAuth
     {
@@ -31,17 +32,28 @@ namespace QuickTix.API.Repositories.Services
             return result;
         }
 
-        public async Task<bool> ValidateUserAsync(UserLoginDto loginDto)
+        public async Task<(LoginResult result, string message)> ValidateUserAsync(UserLoginDto loginDto)
         {
-            _user = await _userManager.FindByNameAsync(loginDto.UserName);
-            var result = _user != null && await _userManager.CheckPasswordAsync(_user, loginDto.Password);
-            return result;
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            if(user == null)
+            {
+                return (LoginResult.InvalidEmail, "Email not found!");
+            }
+            var isValidPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+
+            if (!isValidPassword)
+            {
+                return (LoginResult.InvalidPassword, "Invalid password.");
+            }
+
+            return (LoginResult.Success, "Login successful.");
         }
 
-        public async Task<string> CreateTokenAsync()
+        public async Task<string> CreateTokenAsync(UserLoginDto user)
         {
+            var userClaim = await _userManager.FindByEmailAsync(user.Email);
             var signingCredentials = GetSigningCredentials();
-            var claims = await GetClaims();
+            var claims = await GetClaims(userClaim);
             var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         }
@@ -54,17 +66,20 @@ namespace QuickTix.API.Repositories.Services
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private async Task<List<Claim>> GetClaims()
+        private async Task<List<Claim>> GetClaims(ApplicationUser user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, _user.UserName)
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            var roles = await _userManager.GetRolesAsync(_user);
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            //var roles = await _userManager.GetRolesAsync(_user);
+            //foreach (var role in roles)
+            //{
+            //    claims.Add(new Claim(ClaimTypes.Role, role));
+            //}
             return claims;
         }
 
@@ -80,6 +95,17 @@ namespace QuickTix.API.Repositories.Services
                 signingCredentials: signingCredentials
                 );
             return tokenOptions;
+        }
+
+        public async Task<UserDetailsDto> GetUserByUsername(string emaail)
+        {
+            var user = await _userManager.FindByEmailAsync(emaail);
+            if (user != null)
+            {
+                var userDetails = _mapper.Map<UserDetailsDto>(user);
+                return userDetails;
+            }
+            return null;
         }
     }
 }

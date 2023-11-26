@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using QuickTix.API.Entities.DTOs;
+using HouseMate.API.Entities.DTOs;
+using HouseMate.API.Entities.Enums;
+using HouseMate.API.Data;
 
-namespace QuickTix.API.Repositories.Interfaces
+namespace HouseMate.API.Repositories.Interfaces
 {
     public interface IUserAuth
     {
         Task<IdentityResult> RegisterUserAsync(UserRegistrationDto userRegistration);
-        Task<bool> ValidateUserAsync(UserLoginDto loginDto);
-        Task<string> CreateTokenAsync();
-
+        Task<(LoginResult result, string message)> ValidateUserAsync(UserLoginDto loginDto);
+        Task<string> CreateTokenAsync(UserLoginDto user);
+        Task<UserDetailsDto> GetUserByUsername(string email);
     }
 }

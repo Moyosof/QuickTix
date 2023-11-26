@@ -1,6 +1,6 @@
-﻿using QuickTix.API.Entities.Services;
+﻿using HouseMate.API.Entities.Services;
 
-namespace QuickTix.API.Repositories.Interfaces
+namespace HouseMate.API.Repositories.Interfaces
 {
     public interface IEmailClient
     {

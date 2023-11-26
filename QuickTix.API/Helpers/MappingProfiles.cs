@@ -1,8 +1,8 @@
-﻿using QuickTix.API.Entities.DTOs;
+﻿using HouseMate.API.Entities.DTOs;
 using AutoMapper;
-using QuickTix.API.Data;
+using HouseMate.API.Data;
 
-namespace QuickTix.API.Helpers
+namespace HouseMate.API.Helpers
 {
     public class MappingProfiles : Profile
     {
@@ -10,6 +10,7 @@ namespace QuickTix.API.Helpers
         {
             // All Mapping Configuration Here
             CreateMap<UserRegistrationDto, ApplicationUser>();
+            CreateMap<ApplicationUser, UserDetailsDto>();
         }
     }
 }

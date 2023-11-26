@@ -1,4 +1,4 @@
-﻿namespace QuickTix.API.Repositories.Interfaces
+﻿namespace HouseMate.API.Repositories.Interfaces
 {
     public interface ILoggerManager
     {

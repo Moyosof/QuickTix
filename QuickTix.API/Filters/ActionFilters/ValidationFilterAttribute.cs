@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using QuickTix.API.Repositories.Interfaces;
+using HouseMate.API.Repositories.Interfaces;
 
-namespace QuickTix.API.Filters.ActionFilters
+namespace HouseMate.API.Filters.ActionFilters
 {
     public class ValidationFilterAttribute : IActionFilter
     {

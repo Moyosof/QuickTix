@@ -1,4 +1,4 @@
-﻿namespace QuickTix.API.Entities.Services
+﻿namespace HouseMate.API.Entities.Services
 {
     public class MailClientService
     {

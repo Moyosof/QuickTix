@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using HouseMate.API.Entities.Enums;
+using Microsoft.AspNetCore.Identity;
 
-namespace QuickTix.API.Data
+namespace HouseMate.API.Data
 {
     public class ApplicationUser : IdentityUser
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string State { get; set; }
+        public string City { get; set; }
+        public ServicePerference ServicePerferences { get; set; }
+
     }
 }

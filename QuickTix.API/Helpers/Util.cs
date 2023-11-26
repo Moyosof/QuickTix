@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace QuickTix.API.Helpers
+namespace HouseMate.API.Helpers
 {
     public static class Util
     {

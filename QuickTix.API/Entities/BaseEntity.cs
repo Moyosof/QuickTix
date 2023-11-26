@@ -1,4 +1,4 @@
-﻿namespace QuickTix.API.Entities
+﻿namespace HouseMate.API.Entities
 {
     public class BaseEntity
     {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using QuickTix.API.Helpers;
+using HouseMate.API.Helpers;
 
-namespace QuickTix.API.Filters
+namespace HouseMate.API.Filters
 {
     public class ModelStateCheck : Attribute, IAsyncActionFilter
     {

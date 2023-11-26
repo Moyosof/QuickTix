@@ -1,4 +1,4 @@
-namespace QuickTix.API
+namespace HouseMate.API
 {
     public class WeatherForecast
     {

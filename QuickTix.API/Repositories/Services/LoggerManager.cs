@@ -1,7 +1,7 @@
 ﻿using NLog;
-using QuickTix.API.Repositories.Interfaces;
+using HouseMate.API.Repositories.Interfaces;
 
-namespace QuickTix.API.Repositories.Services
+namespace HouseMate.API.Repositories.Services
 {
     public class LoggerManager : ILoggerManager
     {

@@ -2,10 +2,10 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using QuickTix.API.Entities.Services;
-using QuickTix.API.Repositories.Interfaces;
+using HouseMate.API.Entities.Services;
+using HouseMate.API.Repositories.Interfaces;
 
-namespace QuickTix.API.Repositories.Services
+namespace HouseMate.API.Repositories.Services
 {
     public class EmailClientService : IEmailClient
     {

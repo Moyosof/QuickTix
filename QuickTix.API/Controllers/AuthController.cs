@@ -1,14 +1,18 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using QuickTix.API.Entities.DTOs;
-using QuickTix.API.Filters.ActionFilters;
-using QuickTix.API.Repositories.Interfaces;
+using HouseMate.API.Entities.DTOs;
+using HouseMate.API.Filters.ActionFilters;
+using HouseMate.API.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using HouseMate.API.Entities.Enums;
+using RTools_NTS.Util;
 
-namespace QuickTix.API.Controllers
+namespace HouseMate.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
+
     public class AuthController : ControllerBase
     {
         private readonly IUserAuth _userAuth;
@@ -21,21 +25,37 @@ namespace QuickTix.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost]
+        [HttpPost("register_user")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDto userRegistration)
         {
             var userResult = await _userAuth.RegisterUserAsync(userRegistration);
-            return !userResult.Succeeded ? new BadRequestObjectResult(userResult) : StatusCode(201);
+            if(userResult.Succeeded)
+            {
+                var userDetails = await _userAuth.GetUserByUsername(userRegistration.Email);
+                return Ok(new {User = userDetails });
+
+                //return Ok(userResult);
+            }
+            return BadRequest(userResult);
         }
 
 
         [HttpPost("login")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> Authenticate([FromBody] UserLoginDto user)
+        public async Task<IActionResult> LoginUser([FromBody] UserLoginDto user)
         {
-            return !await _userAuth.ValidateUserAsync(user)
-                ? Unauthorized() : Ok(new { Token = await _userAuth.CreateTokenAsync() });
+            var userLogin = await _userAuth.ValidateUserAsync(user);
+            if (userLogin.result == LoginResult.Success)
+            {
+                var userDetails = await _userAuth.GetUserByUsername(user.Email);
+                var token = await _userAuth.CreateTokenAsync(user);
+                return Ok(new { Token = token, User = userDetails });
+            }
+
+            return BadRequest(userLogin.message);
+            //return !await _userAuth.ValidateUserAsync(user)
+            //    ? Unauthorized() : Ok(new { Token = await _userAuth.CreateTokenAsync() });
         }
 
 

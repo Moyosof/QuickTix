@@ -5,16 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using QuickTix.API.Data;
-using QuickTix.API.Entities;
-using QuickTix.API.Filters.ActionFilters;
-using QuickTix.API.Helpers;
-using QuickTix.API.Repositories.Interfaces;
-using QuickTix.API.Repositories.Services;
+using HouseMate.API.Data;
+using HouseMate.API.Entities;
+using HouseMate.API.Filters.ActionFilters;
+using HouseMate.API.Helpers;
+using HouseMate.API.Repositories.Interfaces;
+using HouseMate.API.Repositories.Services;
 using System.Reflection;
 using System.Text;
 
-namespace QuickTix.API.Extensions
+namespace HouseMate.API.Extensions
 {
     public static class ServiceExtension
     {
@@ -23,7 +23,6 @@ namespace QuickTix.API.Extensions
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddScoped<IUserAuth, UserAuth>();
-
 
             services.AddScoped<ValidationFilterAttribute>();
 
@@ -35,7 +34,7 @@ namespace QuickTix.API.Extensions
 
         public static void ConfigureDatabaseConnection(this IServiceCollection services, IConfiguration Configuration)
         {
-            services.AddDbContext<QuickTixDbContext>(options =>
+            services.AddDbContext<HouseMateDbContext>(options =>
             {
                 options.UseMySql(connectionString: Configuration.GetConnectionString("ApplicationConnectionString"), serverVersion: ServerVersion.AutoDetect(Configuration.GetConnectionString("ApplicationConnectionString")), mySqlOptionsAction: sqlOptions =>
                 {
@@ -71,7 +70,7 @@ namespace QuickTix.API.Extensions
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.SignIn.RequireConfirmedEmail = false;
 
-            }).AddEntityFrameworkStores<QuickTixDbContext>().AddDefaultTokenProviders();
+            }).AddEntityFrameworkStores<HouseMateDbContext>().AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -127,19 +126,19 @@ namespace QuickTix.API.Extensions
             {
                 opt.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "QuickTix.API",
+                    Title = "HouseMate.API",
                     Version = "v1",
-                    Description = "A ticket reservation platform",
+                    Description = "Find your apartment buddy",
                     TermsOfService = new Uri("https://reistry-landing.vercel.app"),
                     Contact = new OpenApiContact
                     {
-                        Name = "Quick Tix Services",
+                        Name = "House Mate Services",
                         Email = "reistyapp@gmail.com",
                         Url = new Uri("https://reistry-landing.vercel.app"),
                     },
                     License = new OpenApiLicense
                     {
-                        Name = "Quick API LICX",
+                        Name = "HouseMate API LICX",
                         Url = new Uri("https://reistry-landing.vercel.app"),
                     }
                 });

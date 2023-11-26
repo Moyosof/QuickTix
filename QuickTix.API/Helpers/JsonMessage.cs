@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
-using QuickTix.API.Entities.DTOs;
+using HouseMate.API.Entities.DTOs;
 
-namespace QuickTix.API.Helpers
+namespace HouseMate.API.Helpers
 {
     public class JsonMessage<T>
     {

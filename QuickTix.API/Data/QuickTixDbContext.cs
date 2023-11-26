@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using QuickTix.API.Entities;
+using HouseMate.API.Entities;
 
-namespace QuickTix.API.Data
+namespace HouseMate.API.Data
 {
-    public class QuickTixDbContext : IdentityDbContext<ApplicationUser>
+    public class HouseMateDbContext : IdentityDbContext<ApplicationUser>
     {
  
 
-        public QuickTixDbContext(DbContextOptions<QuickTixDbContext> options) : base(options)
+        public HouseMateDbContext(DbContextOptions<HouseMateDbContext> options) : base(options)
         {
             
         }

@@ -1,4 +1,4 @@
-﻿namespace QuickTix.API.Entities.Auth
+﻿namespace HouseMate.API.Entities.Auth
 {
     public class PasswordReset
     {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace QuickTix.API.Entities.DTOs
+namespace HouseMate.API.Entities.DTOs
 {
     public class MetaData
     {

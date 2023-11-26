@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{44121196-7F69-469E-AF1C-148CE628B009}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickTix.API", "QuickTix.API\QuickTix.API.csproj", "{9B05493A-992C-48C9-A24D-20C1F432A656}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HouseMate.API", "QuickTix.API\HouseMate.API.csproj", "{9B05493A-992C-48C9-A24D-20C1F432A656}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
