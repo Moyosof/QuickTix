@@ -18,6 +18,6 @@ namespace HouseMate.API.Entities.DTOs
         public required string State { get; set; }
         public required string City { get; set; }
         public required ServicePerference ServicePerferences { get; set; }
-
+        //public required ServicePerference ServicePerferences { get; set; }
     }
 }
